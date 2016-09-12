@@ -1,4 +1,4 @@
-Package: LookRLite
+Package: lookrlite
 Type: Package
 Title: A Lightweight Interface for the Looker API
 Version: 1.0
