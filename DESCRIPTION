@@ -1,9 +1,12 @@
-Package: lookrlite
+Package: LookRLite
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
-LazyData: TRUE
+Title: A Lightweight Interface for the Looker API
+Version: 1.0
+Date: 2016-09-12
+Author: Max Corbin
+Maintainer: Max Corbin <max@looker.com>
+Description: LookRLite is a package, based on Scott Hoover's LookR, that contains functions that interface with Looker's API.
+License: GPL-2
+Depends: R (>=3.0.0)
+Imports: httr, jsonlite
+NeedsCompilation: no
