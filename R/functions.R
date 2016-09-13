@@ -1,6 +1,8 @@
+example_path <- "https://example.looker.com/api/3.0"
+
 check_alive <- function(hostname, port=19999) {
   require(httr)
-  request_response <- GET(modify_url("https://example.looker.com",
+  request_response <- GET(modify_url(example_path,
                                      hostname=hostname,
                                      port=port,
                                      path="alive"))
@@ -19,7 +21,7 @@ api_login <- function(hostname, port=19999, client_id=NULL, client_secret=NULL) 
     client_secret <- readline("Enter client secret: ")
 
   auth_body <- paste0("client_id=", client_id, "&client_secret=", client_secret)
-  request_response <- POST(modify_url("https://example.looker.com",
+  request_response <- POST(modify_url(example_path,
                                       hostname=hostname,
                                       port=port,
                                       path="login"),
@@ -57,7 +59,7 @@ set_connection <- function(hostname, port=19999, client_id, client_secret, token
               port=port,
               client_id=client_id,
               client_secret=client_secret,
-              token=token$access_token,
+              token=paste("token", token$access_token),
               expires_at=Sys.time()+token$expires_in),
          envir=globalenv())
 }
@@ -86,18 +88,12 @@ check_token <- function(hostname, port=19999) {
               connection$client_id,
               connection$client_secret)
   }
-
-  if (nchar(connection$token) == 40) {
-    return(TRUE)
-  } else {
-    return(FALSE)
-  }
 }
 
 api_post <- function(hostname, port=19999, path, ...) {
   require(httr)
   check_token(hostname, port)
-  request_response <- POST(modify_url("https://example.looker.com",
+  request_response <- POST(modify_url(example_path,
                                       hostname=hostname,
                                       port=port,
                                       path=path),
@@ -106,10 +102,10 @@ api_post <- function(hostname, port=19999, path, ...) {
     return(request_response)
 }
 
-api_get <- function(hostname, port=19999, path) {
+api_get <- function(hostname, port=19999, path, ...) {
   require(httr)
   check_token(hostname, port)
-  request_response <- GET(modify_url("https://example.looker.com",
+  request_response <- GET(modify_url(example_path,
                                      hostname=hostname,
                                      port=port,
                                      path=path),
@@ -121,7 +117,7 @@ api_get <- function(hostname, port=19999, path) {
 api_patch <- function(hostname, port=19999, path, ...) {
   require(httr)
   check_token(hostname, port)
-  request_response <- PATCH(modify_url("https://example.looker.com",
+  request_response <- PATCH(modify_url(example_path,
                                        hostname=hostname,
                                        port=port,
                                        path=path),
@@ -133,7 +129,7 @@ api_patch <- function(hostname, port=19999, path, ...) {
 api_delete <- function(hostname, port=19999, path, ...) {
   require(httr)
   check_token(hostname, port)
-  request_response <- DELETE(modify_url("https://example.looker.com",
+  request_response <- DELETE(modify_url(example_path,
                                         hostname=hostname,
                                         port=port,
                                         path=path),
@@ -151,13 +147,13 @@ check_response_status <- function(request_response) {
     message("Success: No Content")
     return(TRUE)
   } else if (status_code == 400) {
-    message("Failure: Bad Request")
+    stop("Failure: Bad Request")
     return(FALSE)
-  } else if (response$status_code == 404) {
-    message("Failure: Not Found")
+  } else if (status_code == 404) {
+    stop("Failure: Not Found")
     return(FALSE)
   } else {
-    message("Unexpected response: ", response$status_code)
+    stop("Unexpected response: ", request_response$status_code)
     return(FALSE)
   }
 }
