@@ -19,10 +19,11 @@ api_login <- function(hostname, port=19999, client_id=NULL, client_secret=NULL) 
     client_secret <- readline("Enter client secret: ")
 
   auth_body <- paste0("client_id=", client_id, "&client_secret=", client_secret)
-  request_response <- api_post(hostname=hostname,
-                               port=port,
-                               path="login",
-                               body = auth_body)
+  request_response <- POST(modify_url("https://example.looker.com",
+                                      hostname=hostname,
+                                      port=port,
+                                      path="login"),
+                           body = auth_body)
 
   token <- jsonlite::fromJSON(content(request_response, as="text"))
 
@@ -37,6 +38,17 @@ api_login <- function(hostname, port=19999, client_id=NULL, client_secret=NULL) 
 api_logout <- function(hostname, port=19999) {
   require(httr)
 
+  connection <- get_connection(hostname, port)
+
+  request_response <- api_delete(hostname=hostname,
+                                 port=port,
+                                 path="logout",
+                                 add_headers(Authentication=connection$token))
+
+  if (check_response_status(request_response)) {
+    message("Logout success")
+    return(request_response)
+  }
 }
 
 set_connection <- function(hostname, port=19999, client_id, client_secret, token) {
@@ -50,6 +62,10 @@ set_connection <- function(hostname, port=19999, client_id, client_secret, token
          envir=globalenv())
 }
 
+exists_connection <- function(hostname, port=19999) {
+  exists(paste(hostname, port, "conn", sep="_"), envir=globalenv())
+}
+
 get_connection <- function(hostname, port=19999) {
   get(paste(hostname, port, "conn", sep="_"), envir=globalenv())
 }
@@ -58,18 +74,20 @@ check_token <- function(hostname, port=19999) {
   # Make sure the connection object exists in the global environment
   # and see if its token has expired, generate token
 
-  if (exists(paste0(hostname, port, "_conn"), envir=globalenv()))
+  if (exists_connection(hostname, port))
     connection <- get_connection(hostname=hostname, port=port)
   else
     api_login(hostname=hostname, port=port)
 
-  if (is.null(connection$token) || Sys.time() > connection$expires_at)
+  if (is.null(connection$token) || Sys.time() > connection$expires_at) {
+    message("Need a new token")
     api_login(connection$hostname,
               connection$port,
               connection$client_id,
               connection$client_secret)
+  }
 
-  if (nchar(token$access_token) == 40) {
+  if (nchar(connection$token) == 40) {
     return(TRUE)
   } else {
     return(FALSE)
@@ -78,44 +96,48 @@ check_token <- function(hostname, port=19999) {
 
 api_post <- function(hostname, port=19999, path, ...) {
   require(httr)
+  check_token(hostname, port)
   request_response <- POST(modify_url("https://example.looker.com",
-                                               hostname=hostname,
-                                               port=port,
-                                               path=path),
-                                    ...)
+                                      hostname=hostname,
+                                      port=port,
+                                      path=path),
+                           ...)
   if (check_response_status(request_response))
     return(request_response)
 }
 
 api_get <- function(hostname, port=19999, path) {
   require(httr)
+  check_token(hostname, port)
   request_response <- GET(modify_url("https://example.looker.com",
-                                              hostname=hostname,
-                                              port=port,
-                                              path=path),
-                                   ...)
+                                     hostname=hostname,
+                                     port=port,
+                                     path=path),
+                          ...)
   if (check_response_status(request_response))
     return(request_response)
 }
 
 api_patch <- function(hostname, port=19999, path, ...) {
   require(httr)
+  check_token(hostname, port)
   request_response <- PATCH(modify_url("https://example.looker.com",
-                                                hostname=hostname,
-                                                port=port,
-                                                path=path),
-                                     ...)
+                                       hostname=hostname,
+                                       port=port,
+                                       path=path),
+                            ...)
   if (check_response_status(request_response))
     return(request_response)
 }
 
 api_delete <- function(hostname, port=19999, path, ...) {
   require(httr)
+  check_token(hostname, port)
   request_response <- DELETE(modify_url("https://example.looker.com",
-                                                 hostname=hostname,
-                                                 port=port,
-                                                 path=path),
-                                      ...)
+                                        hostname=hostname,
+                                        port=port,
+                                        path=path),
+                             ...)
   if (check_response_status(request_response))
     return(request_response)
 }
