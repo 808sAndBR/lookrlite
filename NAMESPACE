@@ -1,2 +1,2 @@
-import("httr", "jsonlite")
+import("httr", "jsonlite", "digest"))
 exportPattern("^[[:alpha:]]+")

@@ -7,6 +7,6 @@ Author: Max Corbin
 Maintainer: Max Corbin <max@looker.com>
 Description: LookRLite is a package, based on Scott Hoover's LookR, that contains functions that interface with Looker's API.
 License: GPL-2
-Depends: R (>=3.0.0)
-Imports: httr, jsonlite
+Depends: R (>=3.0.0), httr, jsonlite, digest
+Imports: httr, jsonlite, digest
 NeedsCompilation: no
