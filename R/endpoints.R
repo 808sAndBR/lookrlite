@@ -1,4 +1,4 @@
-run_look <- function(connection, look_id, format="json", limit=NULL) {
+run_look <- function(connection, look_id, limit=NULL) {
   require(httr)
   require(jsonlite)
   request_path <- paste0("api/3.0/looks/", look_id, "/run/", format)
@@ -11,7 +11,7 @@ run_look <- function(connection, look_id, format="json", limit=NULL) {
                               query=list(limit=limit))
   data <- jsonlite::fromJSON(content(request_response,
                                      as="text",
-                                     type=format))
+                                     type="json"))
   return(data)
 }
 
@@ -19,6 +19,23 @@ get_look <- function(connection, look_id) {
   require(httr)
   require(jsonlite)
   request_path <- paste0("api/3.0/looks/", look_id)
+
+  request_response <- api_get(connection$hostname,
+                              connection$port,
+                              path=request_path,
+                              add_headers("Authorization"=connection$token,
+                                          "Content-Type"="application/json"))
+
+  data <- jsonlite::fromJSON(content(request_response,
+                                     as="text",
+                                     type="json"))
+  return(data)
+}
+
+get_looks <- function(connection) {
+  require(httr)
+  require(jsonlite)
+  request_path <- paste0("api/3.0/looks")
 
   request_response <- api_get(connection$hostname,
                               connection$port,
