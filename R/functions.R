@@ -2,8 +2,7 @@ examplePath <- "https://example.looker.com/api/3.0"
 
 CheckAlive <- function(hostname,
 											 port = 19999) {
-	require(httr)
-	request_response <- GET(modify_url(examplePath,
+	requestResponse <- GET(modify_url(examplePath,
 																		 hostname = hostname,
 																		 port 		= port,
 																		 path     = "alive"))
@@ -14,7 +13,6 @@ ApiLogin <- function(hostname,
 										 clientId,
 										 clientSecret,
 										 port = 19999) {
-	require(httr)
 	
 	# Check the instance at hostname:port/alive to make sure it can response
 	if (!CheckAlive(hostname = hostname, 
@@ -56,7 +54,6 @@ ApiLogin <- function(hostname,
 
 ApiLogout <- function(hostname,
 											port = 19999) {
-	require(httr)
 	# Retrieve connection details from global environment
 	connection <- GetConnection(hostname, port)
 	
@@ -85,7 +82,7 @@ SetConnection <- function(hostname,
 	assign(paste(hostname, port, "conn", sep="_"),
 				 list(hostname = hostname,
 				 		 port = port,
-				 		 clientId = clientIdd,
+				 		 clientId = clientId,
 				 		 clientSecret = clientSecret,
 				 		 token = paste("token", token["access_token"]),
 				 		 expiresAt = Sys.time() + as.numeric(token["expires_in"])),
@@ -127,7 +124,6 @@ ApiPost <- function(hostname,
 										path,
 										port = 19999,
 										...) {
-	require(httr)
 	
 	# Make sure the token is not expired
 	CheckToken(hostname = hostname, port = port)
@@ -147,7 +143,6 @@ ApiPost <- function(hostname,
 }
 
 ApiGet <- function(hostname, port = 19999, path, ...) {
-	require(httr)
 	
 	# Make sure the token is not expired
 	CheckToken(hostname = hostname, port = port)
@@ -167,7 +162,6 @@ ApiGet <- function(hostname, port = 19999, path, ...) {
 }
 
 ApiPatch <- function(hostname, port = 19999, path, ...) {
-	require(httr)
 	
 	# Make sure the token is not expired
 	CheckToken(hostname = hostname, port = port)
@@ -190,7 +184,6 @@ ApiDelete <- function(hostname,
 											path,
 											port = 19999,
 											...) {
-	require(httr)
 	# Make sure the token is not expired
 	CheckToken(hostname = hostname, port = port)
 	
