@@ -10,9 +10,9 @@ CheckAlive <- function(hostname,
 }
 
 ApiLogin <- function(hostname,
-										 clientId,
-										 clientSecret,
-										 port = 19999) {
+					 clientId,
+					 clientSecret,
+					 port = 19999) {
 	
 	# Check the instance at hostname:port/alive to make sure it can response
 	if (!CheckAlive(hostname = hostname, 
@@ -39,16 +39,16 @@ ApiLogin <- function(hostname,
 	token <- jsonlite::fromJSON(content(requestResponse, as="text"))
 	
 	# Set connection in R session as a list in the global environment
-	SetConnection(hostname     = hostname,
-								port         = port,
-								clientId     = clientId,
-								clientSecret = clientSecret,
-								token        = token)
+	looker_conn <- SetConnection(hostname     = hostname,
+								port          = port,
+								clientId      = clientId,
+								clientSecret  = clientSecret,
+								token         = token)
 	
 	# Check the access token to make sure it looks as expected
 	if (!is.null(token["access_token"]) && nchar(token["access_token"]) == 40) {
 		message("Login success")
-		return(TRUE)
+		return(looker_conn)
 	}
 }
 
@@ -59,10 +59,10 @@ ApiLogout <- function(hostname,
 	
 	# Build a DELETE request, send to hostname:port/logout to revoke token
 	requestResponse <- ApiDelete(hostname = hostname,
-															 port = port,
-															 path = "logout",
-															 add_headers(Authentication = connection["token"]))
-	
+								 port = port,
+								 path = "logout",
+								 add_headers(Authentication = connection["token"]))
+
 	# Check response for success before returning
 	# TODO (maxcorbin): Try to send a simple API request using old token
 	# 									to make sure the token was revoked successfully
